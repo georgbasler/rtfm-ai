@@ -1,12 +1,23 @@
+
+# for llamafile on First, run
+#    ./llava-v1.5-7b-q4-server.llamafile
+# 
+# For WSL2, execute before running llamafile:
+#    sudo sh -c 'echo :WSLInterop:M::MZ::/init:PF > /usr/lib/binfmt.d/WSLInterop.conf;
+#    systemctl unmask systemd-binfmt.service;
+#    systemctl restart systemd-binfmt;
+#    systemctl mask systemd-binfmt.service;
+#    echo -1 > /proc/sys/fs/binfmt_misc/WSLInterop'
+#
 # run webserver:
-# panel serve rtfm-ai.py --allow-websocket-origin=127.0.0.1:5006 &
+#    panel serve rtfm-ai.py --allow-websocket-origin=127.0.0.1:5006 &
 
 import os
 import openai
 import panel as pn  # GUI
 import sys
 
-API = 'llamafile'
+API = 'openai'
 
 if (API == 'openai'):
     from dotenv import load_dotenv, find_dotenv
@@ -67,7 +78,7 @@ def is_binary(file_path):
         print(f"Error checking binary for {file_path}: {e}")
         return False
 
-directory_path = '' # sys.argv[1] # INSERT YOUR DOC PATH
+directory_path = '~/temp/controllability' # sys.argv[1] # INSERT YOUR DOC PATH
 
 result_dict = generate_file_dictionary(os.path.expanduser(directory_path))
 print(f"Files scanned: {len(result_dict)}")
@@ -91,7 +102,6 @@ messages=[
      "In your response, first give the name of the tool, library or package and one sentence summarizing its purpose. Then respond to user requests about the documention."
      },
     {"role": "assistant", "content": "First give the name of the tool, library or package and one sentence summarizing its purpose. "
-     "Then respond to user requests about the documention."
      }
 ]
 
