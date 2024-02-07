@@ -2,21 +2,33 @@
 # panel serve rtfm-ai.py --allow-websocket-origin=127.0.0.1:5006 &
 
 import os
-from openai import OpenAI
+import openai
 import panel as pn  # GUI
+import sys
 
-#openai.api_key  = os.getenv('OPENAI_API_KEY')
-client = OpenAI(
-    base_url="http://localhost:8080/v1", # "http://<Your api-server IP>:port"
-    api_key = "sk-no-key-required"
-)
-def get_completion(messages, model="gpt-3.5-turbo", temperature=0):
-    completion = client.chat.completions.create(
-        model="LLaMA_CPP",
+API = 'llamafile'
+
+if (API == 'openai'):
+    from dotenv import load_dotenv, find_dotenv
+    _ = load_dotenv(find_dotenv())
+    openai.api_key  = os.getenv('OPENAI_API_KEY')
+    completion = openai.chat.completions
+    model = 'gpt-3.5-turbo' # "This model's maximum context length is 4097 tokens
+elif (API == 'llamafile'):
+    client = openai.OpenAI(
+        base_url="http://localhost:8080/v1", # "http://<Your api-server IP>:port"
+        api_key = "sk-no-key-required"
+    )
+    completion = client.chat.completions
+    model = 'LLaMA_CPP'
+
+def get_completion(messages, model=model, temperature=0):
+    response = completion.create(
+        model=model,
         messages=messages,
         temperature=temperature
     )
-    return completion
+    return response
 
 
 
@@ -55,7 +67,7 @@ def is_binary(file_path):
         print(f"Error checking binary for {file_path}: {e}")
         return False
 
-directory_path = '' # INSERT YOUR DOC PATH
+directory_path = '' # sys.argv[1] # INSERT YOUR DOC PATH
 
 result_dict = generate_file_dictionary(os.path.expanduser(directory_path))
 print(f"Files scanned: {len(result_dict)}")
